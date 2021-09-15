@@ -99,6 +99,8 @@ async function mergeValidPr() {
     }
     q.all(promises).then(() => {
         console.log("merged");
+        console.log(mergeablePr);
+        console.log(failedToMerge);
         defer.resolve();
     })
     return defer.promise;
@@ -208,6 +210,8 @@ async function getAllPatchesAndApply() {
 
 async function setOutputInfoAndCleanup() {
     console.log("setting output");
+    console.log(mergeablePr);
+    console.log(failedToMerge);
     core.setOutput("merged", Object.keys(mergeablePr).length > 0);
     core.setOutput("error-log", errorLog);
     core.setOutput("pass-log", passLog);
