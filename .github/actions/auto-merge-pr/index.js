@@ -143,7 +143,7 @@ async function runTest() {
     }
 
     const run =  (returnCode) => {
-        console.log(returnCode);
+        console.log("returnCode" + returnCode);
         if (!returnCode || !Object.keys(mergeablePr).length) {
             return defer.resolve();
         }
@@ -216,7 +216,7 @@ async function setOutputInfoAndCleanup() {
     core.setOutput("error-log", errorLog);
     core.setOutput("pass-log", passLog);
     core.setOutput("merge-info", Object.keys(mergeablePr).length > 0 ? 
-        "merge successfully:\n" + succeedToMerge.join() + "\n\n" + "failed to merge: \n" + failedToMerge.join() + "\n" : 
+        "merge successfully:\n" + succeedToMerge.join(', ') + "\n\n" + "failed to merge: \n" + failedToMerge.join(', ') + "\n" : 
         "not any pr was merged");
     return exec.exec(`rm -rf *.patch`, [], execOptions);
 }

@@ -27,6 +27,7 @@ jobs:
         ci-command: 'bash ./build.sh'
     - name: Print result
       run: |
+        ls /home/runner/work/_temp/
         echo ${{ steps.merge-pr.outputs.merge-info }}
         echo ${{ steps.merge-pr.outputs.error-log }}
         echo ${{ steps.merge-pr.outputs.pass-log }}
