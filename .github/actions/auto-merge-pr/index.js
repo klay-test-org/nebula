@@ -95,7 +95,6 @@ async function getMergeablePrs(res) {
                     mergeable = false;
                 }
             });
-            console.log(mergeable);
             if (mergeable) {
                 mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.patch_url};
             }
@@ -104,6 +103,7 @@ async function getMergeablePrs(res) {
 }
 
 async function runTest() {
+
     let defer = q.defer();
 
     const options = {};
@@ -156,6 +156,7 @@ async function sendMergeInfoToDingtalk() {
 async function getAllPatchesAndApply() {
     async.eachOf(mergeablePr, (pr, prNum) => {
         return octokit.request(`GET ${pr.patch_url}`).then(async response => {
+            console.log(response);
             fs.writeFileSync(`${prNum}.patch`, response.data);
             mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
             const returnCode = await exec.exec(`git apply ${prNum}.patch`, [], options);
