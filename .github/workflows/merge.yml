@@ -18,6 +18,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Run merge script
       uses: ./.github/actions/auto-merge-pr
+      working-directory: .github/actions/auto-merge-pr
       with:
         dingtalk-access-token: ${{ secrets.DINGTALK_ACCESS_TOKEN }}
         dingtalk-secret: ${{ secrets.DINGTALK_SECRET }}
