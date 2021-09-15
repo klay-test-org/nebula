@@ -78,6 +78,7 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
+    console.log(mergeablePr);
     let promises = [];
     const defer = q.defer();
     for (const [prNum, pr] of Object.entries(mergeablePr)) {
@@ -173,7 +174,7 @@ async function sendMergeInfoToDingtalk() {
             // "atMobiles": phone, 
             "isAtAll": false
         };
-        // return robot.markdown(title,text,at);
+        return robot.markdown(title,text,at);
     }    
 }
 
