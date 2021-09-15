@@ -194,7 +194,7 @@ async function getAllPatchesAndApply() {
         promises.push(
             octokit.request(`GET ${pr.patch_url}`)
             .then(async response => {
-                fs.writeFileSync(`${prNum}.patch`, response.data.trim());
+                fs.writeFileSync(`${prNum}.patch`, response.data.replace(/\n$/, ""));
                 mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
             })
             .then(() => exec.exec(`git apply ${prNum}.patch`, [], execOptions))
