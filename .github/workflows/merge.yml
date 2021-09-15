@@ -24,7 +24,7 @@ jobs:
         dingtalk-secret: ${{ secrets.DINGTALK_SECRET }}
         maintainer-team-name: ${{ secrets.MAINTAINER_TEAM_NAME }}
         gh-token: ${{ secrets.GH_TOKEN }}
-        ci-command: './build.sh'
+        ci-command: 'bash ./build.sh'
     - name: Print result
       run: |
         echo ${{ steps.merge-pr.outputs.merge-info }}
