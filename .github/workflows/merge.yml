@@ -2,7 +2,7 @@ name: auto merge
 
 on:
   schedule:
-    - cron: '/5 * * * *'
+    - cron: '*/5 * * * *'
 
 defaults:
   run:
