@@ -198,7 +198,7 @@ async function getAllPatchesAndApply() {
                 fs.writeFileSync(`${prNum}.patch`, response.data);
                 mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
             })
-            .then(() => exec.exec(`git apply --reject --whitespace=fix ${prNum}.patch`, [], execOptions))
+            .then(() => exec.exec(`git apply ${prNum}.patch`, [], execOptions))
             .then(returnCode => {
                 if (returnCode != 0) {
                     failedToMerge.push(pr.html_url);
