@@ -91,7 +91,8 @@ async function getMergeablePrs(res) {
             comments.data.forEach(comment => { 
                 const body = striptags(comment.body).trim();
                 console.log(body);
-                console.log(maintainerList.includes(comment.body.login));
+                console.log(maintainerList);
+                console.log(comment.body.login);
                 if (body === "/merge" && maintainerList.includes(comment.body.login)) {
                     mergeable = true;
                 } else if (body === "/wait a minute" && maintainerList.includes(comment.body.login)) {
