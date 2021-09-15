@@ -143,7 +143,7 @@ async function runTest() {
     }
 
     const run =  (returnCode) => {
-        console.log(returnCOde);
+        console.log(returnCode);
         if (!returnCode || !Object.keys(mergeablePr).length) {
             return defer.resolve();
         }
