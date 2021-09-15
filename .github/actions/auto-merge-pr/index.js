@@ -78,7 +78,7 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
-    console.log(mergeablePr);
+    console.log("merging");
     let promises = [];
     const defer = q.defer();
     for (const [prNum, pr] of Object.entries(mergeablePr)) {
@@ -89,6 +89,7 @@ async function mergeValidPr() {
                 merge_method: 'squash',
                 pull_number: prNum
             }).then((response) => {
+                console.log(response.status);
                 if (response.status != '200') {
                     failedToMerge.push(pr.html_url);
                     delete mergeablePr[prNum];
@@ -97,6 +98,7 @@ async function mergeValidPr() {
         );
     }
     q.all(promises).then(() => {
+        console.log("merged");
         defer.resolve();
     })
     return defer.promise;
@@ -139,6 +141,7 @@ async function runTest() {
     }
 
     const run =  (returnCode) => {
+        console.log(returnCOde);
         if (!returnCode || !Object.keys(mergeablePr).length) {
             return defer.resolve();
         }
@@ -167,13 +170,13 @@ async function sendMergeInfoToDingtalk() {
         let title = "merge info";
         let text = "## merge info\n" +
         "> merge successfully:\n" +
-        "> " + succeedToMerge.join() + "\n\n"  +
+        "> " + succeedToMerge.join(', ') + "\n\n"  +
         "> failed to merge: \n" +
-        "> " + failedToMerge.join() + "\n";
+        "> " + failedToMerge.join(', ') + "\n";
         let at = {
             // "atMobiles": phone, 
             "isAtAll": false
-        };
+        };;
         return robot.markdown(title,text,at);
     }    
 }
@@ -204,6 +207,7 @@ async function getAllPatchesAndApply() {
 }
 
 async function setOutputInfoAndCleanup() {
+    console.log("setting output");
     core.setOutput("merged", Object.keys(mergeablePr).length > 0);
     core.setOutput("error-log", errorLog);
     core.setOutput("pass-log", passLog);
