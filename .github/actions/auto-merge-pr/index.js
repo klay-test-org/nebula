@@ -97,8 +97,7 @@ async function getMergeablePrs(res) {
                 }
             });
             if (mergeable) {
-                console.log(pr);
-                mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.patch_url};
+                mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.pull_request.patch_url};
                 console.log(mergeablePr);
             }
         });
