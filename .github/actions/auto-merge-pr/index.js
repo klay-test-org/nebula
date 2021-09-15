@@ -31,7 +31,6 @@ function main() {
     q.all([getAllMaintainers(),getAllOpenPrs()])
     .then(getMergeablePrs)
     .then(() => {
-        console.log("31231");
         console.log(mergeablePr);
         if (Object.keys(mergeablePr).length) {
             return getAllPatchesAndApply()
@@ -85,7 +84,8 @@ async function mergeValidPr() {
 async function getMergeablePrs(res) {
     const maintainerList = res[0];
     const prs = res[1];
-    return async.each(prs, pr => {
+    let defer = q.defer();
+    async.each(prs, pr => {
         return octokit.request('GET ' + pr.comments_url)
         .then(comments => {
             let mergeable = false;
@@ -102,7 +102,11 @@ async function getMergeablePrs(res) {
                 console.log(mergeablePr);
             }
         });
+    }, () => {
+        console.log("done");
+        defer.resolve();
     });
+    return defer.promise();
 }
 
 async function runTest() {
