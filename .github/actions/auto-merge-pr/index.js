@@ -1,5 +1,5 @@
 const github = require('@actions/github');
-// const repo = github.context.repo;
+const repo = github.context.repo;
 const exec = require('@actions/exec');
 const core = require('@actions/core');
 const q = require('q');
