@@ -13,7 +13,6 @@ jobs:
   merge:
     name: auto merge all approved PRs
     runs-on: ubuntu-latest
-    using: "composite"
     steps:
     - name: Check out branch
       uses: actions/checkout@v2
