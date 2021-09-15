@@ -90,13 +90,15 @@ async function getMergeablePrs(res) {
             const mergeable = false;
             comments.data.forEach(comment => { 
                 const body = striptags(comment.body).trim();
-                console.log(body)
+                console.log(body);
+                console.log(maintainerList.includes(comment.body.login));
                 if (body === "/merge" && maintainerList.includes(comment.body.login)) {
                     mergeable = true;
                 } else if (body === "/wait a minute" && maintainerList.includes(comment.body.login)) {
                     mergeable = false;
                 }
             });
+            console.log(mergeable);
             if (mergeable) {
                 mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.patch_url};
             }
