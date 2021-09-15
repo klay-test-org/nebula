@@ -1,5 +1,5 @@
 const github = require('@actions/github');
-const repo = github.context.repo;
+// const repo = github.context.repo;
 const exec = require('@actions/exec');
 const core = require('@actions/core');
 const q = require('q');
@@ -7,15 +7,22 @@ const striptags = require('striptags');
 const async = require("async");
 const ChatBot = require('dingtalk-robot-sender');
 const fs = require('fs');
-const { Console } = require('console');
 
-const repoName = repo.repo;
-const ownerName = repo.owner;
-const octokit = github.getOctokit(core.getInput('gh-token'));
-const maintainerTeamName = core.getInput('maintainer-team-name');
-const dingtalkAccessToken = core.getInput('dingtalk-access-token');
-const dingtalkSecret = core.getInput('dingtalk-secret');
-const ci = core.getInput('ci-command');
+// const repoName = repo.repo;
+// const ownerName = repo.owner;
+// const octokit = github.getOctokit(core.getInput('gh-token'));
+// const maintainerTeamName = core.getInput('maintainer-team-name');
+// const dingtalkAccessToken = core.getInput('dingtalk-access-token');
+// const dingtalkSecret = core.getInput('dingtalk-secret');
+// const ci = core.getInput('ci-command');
+
+const repoName = 'nebula';
+const ownerName = 'klay-test-org';
+const octokit = github.getOctokit('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');
+const maintainerTeamName = 'Maintainer';
+const dingtalkAccessToken = '93b071fc90528b2ecc09a4702692c8b630f0622d7447ab9d957399c2a0043c32';
+const dingtalkSecret = 'SECaea7282b5526b290528d6d3149c8a2b73fb1c4ea64e08cdb79d68d5f99b809e1';
+const ci = 'echo 1';
 
 const robot = new ChatBot({
     webhook: `https://oapi.dingtalk.com/robot/send?access_token=${dingtalkAccessToken}`,
@@ -24,21 +31,34 @@ const robot = new ChatBot({
 
 let mergeablePr = {};
 let failedToMerge = [];
+let succeedToMerge = [];
 let errorLog = "";
 let passLog = "";
+
+const execOptions = {};
+execOptions.ignoreReturnCode = true;
+execOptions.listeners = {
+    stdout: (data) => {
+        passLog += data.toString();
+    },
+    stderr: (data) => {
+        errorLog += data.toString();
+    }
+};
 
 function main() {
     q.all([getAllMaintainers(),getAllOpenPrs()])
     .then(getMergeablePrs)
     .then(() => {
-        console.log(mergeablePr);
         if (Object.keys(mergeablePr).length) {
             return getAllPatchesAndApply()
             .then(runTest)
             .then(mergeValidPr)
             .then(sendMergeInfoToDingtalk);
         }
-    }).then(setOutputInfoAndCleanup);
+    })
+    .then(setOutputInfoAndCleanup)
+    .done();
 }
   
 if (require.main === module) {
@@ -66,27 +86,36 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
-    return async.eachOf(mergeablePr, (pr, prNum) => {
-        return octokit.rest.pulls.merge({
-            owner: ownerName,
-            repo: repoName,
-            merge_method: 'squash',
-            pull_number: prNum
-        }).then((response) => {
-            if (response.status != '200') {
-                failedToMerge.push(pr.html_url);
-                delete mergeablePr[prNum];
-            }
-        })
-    });
+    let promises = [];
+    const defer = q.defer();
+    for (const [prNum, pr] of Object.entries(mergeablePr)) {
+        promises.push(
+            octokit.rest.pulls.merge({
+                owner: ownerName,
+                repo: repoName,
+                merge_method: 'squash',
+                pull_number: prNum
+            }).then((response) => {
+                if (response.status != '200') {
+                    failedToMerge.push(pr.html_url);
+                    delete mergeablePr[prNum];
+                }
+            })
+        );
+    }
+    q.all(promises).then(() => {
+        defer.resolve();
+    })
+    return defer.promise;
 }
 
 async function getMergeablePrs(res) {
     const maintainerList = res[0];
     const prs = res[1];
-    let defer = q.defer();
-    async.each(prs, pr => {
-        return octokit.request('GET ' + pr.comments_url)
+    const defer = q.defer();
+    let promises = [];
+    prs.forEach((pr) => {
+        promises.push(octokit.request('GET ' + pr.comments_url)
         .then(comments => {
             let mergeable = false;
             comments.data.forEach(comment => { 
@@ -99,49 +128,41 @@ async function getMergeablePrs(res) {
             });
             if (mergeable) {
                 mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.pull_request.patch_url};
-                console.log(mergeablePr);
             }
-        });
-    }, () => {
-        console.log("done");
+        }));
+    })
+    q.all(promises).then(() => {
         defer.resolve();
     });
-    return defer.promise();
+    return defer.promise;
 }
 
 async function runTest() {
 
     let defer = q.defer();
 
-    const options = {};
-    options.listeners = {
-        stdout: (data) => {
-            console.log(data.toString());
-            passLog += data.toString();
-        },
-        stderr: (data) => {
-            console.log(data.toString());
-            errorLog += data.toString();
+    const run =  (returnCode) => {
+        if (!returnCode || !Object.keys(mergeablePr).length) {
+            return defer.resolve();
+        }
+
+        if (returnCode) {
+            const kickout = getRandomInt(Object.keys(mergeablePr).length);
+            const pr = mergeablePr[Object.keys(mergeablePr)[kickout]];
+            failedToMerge.push(pr.html_url);
+            delete mergeablePr[pr.number];
+            return exec.exec(`git apply -R ${pr.number}.patch`, [], execOptions)
+                .then(() => exec.exec(ci, [], execOptions))
+                .then(run);
         }
     };
 
-    const returnCode = false;
-    while (!returnCode && Object.keys(mergeablePr).length > 0) {
-        returnCode = await exec.exec(ci, [], options);
-        if (returnCode != 0) {
-            const kickout = getRandomInt(Object.keys(mergeablePr).length);
-            const pr = mergeablePr[Object.keys(mergeablePr)[kickout]];
-            await exec.exec(`git apply -R ${pr.number}.patch`);
-            failedToMerge.push(pr.html_url);
-            delete mergeablePr[pr.number];
-        }
-    }
-    defer.resolve();
+    exec.exec(ci, [], execOptions)
+    .then(run);
     return defer.promise;
 }
 
 async function sendMergeInfoToDingtalk() {
-    let succeedToMerge = [];
     for (const [key, value] of Object.entries(mergeablePr)) {
         succeedToMerge.push(value.html_url);
     }
@@ -156,24 +177,33 @@ async function sendMergeInfoToDingtalk() {
             // "atMobiles": phone, 
             "isAtAll": false
         };
-        return robot.markdown(title,text,at);
+        // return robot.markdown(title,text,at);
     }    
 }
 
 async function getAllPatchesAndApply() {
-    console.log("hello");
-    return async.eachOf(mergeablePr, (pr, prNum) => {
-        return octokit.request(`GET ${pr.patch_url}`).then(async response => {
-            console.log(response);
-            fs.writeFileSync(`${prNum}.patch`, response.data);
-            mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
-            const returnCode = await exec.exec(`git apply ${prNum}.patch`, [], options);
-            if (returnCode != 0) {
-                failedToMerge.push(pr.html_url);
-                delete mergeablePr[pr.number];
-            }
-        });
+    let promises = [];
+    const defer = q.defer();
+    for (const [prNum, pr] of Object.entries(mergeablePr)) {
+        promises.push(
+            octokit.request(`GET ${pr.patch_url}`)
+            .then(async response => {
+                fs.writeFileSync(`${prNum}.patch`, response.data);
+                mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
+            })
+            .then(() => exec.exec(`git apply ${prNum}.patch`, [], execOptions))
+            .then(returnCode => {
+                if (returnCode != 0) {
+                    failedToMerge.push(pr.html_url);
+                    delete mergeablePr[pr.number];
+                }
+            })
+        );
+    }
+    q.all(promises).then(async () => {
+        defer.resolve();
     });
+    return defer.promise;
 }
 
 async function setOutputInfoAndCleanup() {
@@ -183,5 +213,5 @@ async function setOutputInfoAndCleanup() {
     core.setOutput("merge-info", Object.keys(mergeablePr).length > 0 ? 
         "merge successfully:\n" + succeedToMerge.join() + "\n\n" + "failed to merge: \n" + failedToMerge.join() + "\n" : 
         "not any pr was merged");
-    await exec.exec(`rm -rf *.patch`);
+    return exec.exec(`rm -rf *.patch`, [], execOptions);
 }
