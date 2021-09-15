@@ -31,6 +31,7 @@ function main() {
     q.all([getAllMaintainers(),getAllOpenPrs()])
     .then(getMergeablePrs)
     .then(() => {
+        console.log(mergeablePr);
         if (Object.keys(mergeablePr).length) {
             return getAllPatchesAndApply()
             .then(runTest)
@@ -154,6 +155,7 @@ async function sendMergeInfoToDingtalk() {
 }
 
 async function getAllPatchesAndApply() {
+    console.log("hello");
     async.eachOf(mergeablePr, (pr, prNum) => {
         return octokit.request(`GET ${pr.patch_url}`).then(async response => {
             console.log(response);
