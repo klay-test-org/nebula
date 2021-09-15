@@ -7,6 +7,7 @@ const striptags = require('striptags');
 const async = require("async");
 const ChatBot = require('dingtalk-robot-sender');
 const fs = require('fs');
+const { Console } = require('console');
 
 const repoName = repo.repo;
 const ownerName = repo.owner;
@@ -172,5 +173,8 @@ async function setOutputInfoAndCleanup() {
     core.setOutput("merge-info", Object.keys(mergeablePr).length > 0 ? 
         "merge successfully:\n" + succeedToMerge.join() + "\n\n" + "failed to merge: \n" + failedToMerge.join() + "\n" : 
         "not any pr was merged");
+    console.log("merge-info", Object.keys(mergeablePr).length > 0 ? 
+    "merge successfully:\n" + succeedToMerge.join() + "\n\n" + "failed to merge: \n" + failedToMerge.join() + "\n" : 
+    "not any pr was merged");
     await exec.exec(`rm -rf *.patch`);
 }
