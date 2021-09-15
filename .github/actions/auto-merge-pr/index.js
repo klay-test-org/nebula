@@ -98,7 +98,7 @@ async function mergeValidPr() {
                     delete mergeablePr[prNum];
                 }
             })
-            .fail(err => {
+            .catch(err => {
                 console.log("error!!!!");
                 console.log(err);
             })
@@ -110,7 +110,7 @@ async function mergeValidPr() {
         console.log(mergeablePr);
         console.log(failedToMerge);
         defer.resolve();
-    }).fail(err => {
+    }).catch(err => {
         console.log("error!!!!");
         console.log(err);
     })
