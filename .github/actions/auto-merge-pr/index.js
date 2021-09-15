@@ -173,8 +173,5 @@ async function setOutputInfoAndCleanup() {
     core.setOutput("merge-info", Object.keys(mergeablePr).length > 0 ? 
         "merge successfully:\n" + succeedToMerge.join() + "\n\n" + "failed to merge: \n" + failedToMerge.join() + "\n" : 
         "not any pr was merged");
-    console.log("merge-info", Object.keys(mergeablePr).length > 0 ? 
-    "merge successfully:\n" + succeedToMerge.join() + "\n\n" + "failed to merge: \n" + failedToMerge.join() + "\n" : 
-    "not any pr was merged");
     await exec.exec(`rm -rf *.patch`);
 }

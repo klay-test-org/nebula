@@ -13,14 +13,22 @@ jobs:
   merge:
     name: auto merge all approved PRs
     runs-on: ubuntu-latest
+    using: "composite"
     steps:
     - name: Check out branch
       uses: actions/checkout@v2
     - name: Run merge script
       uses: ./.github/actions/auto-merge-pr
+      id: merge-pr
       with:
         dingtalk-access-token: ${{ secrets.DINGTALK_ACCESS_TOKEN }}
         dingtalk-secret: ${{ secrets.DINGTALK_SECRET }}
         maintainer-team-name: ${{ secrets.MAINTAINER_TEAM_NAME }}
         gh-token: ${{ secrets.GH_TOKEN }}
         ci-command: './build.sh'
+    - name: Print result
+      run: |
+        echo ${{ steps.merge-pr.outputs.merge-info }}
+        echo ${{ steps.merge-pr.outputs.error-log }}
+        echo ${{ steps.merge-pr.outputs.pass-log }}
+        echo ${{ steps.merge-pr.outputs.merged }}
