@@ -1,0 +1,3 @@
+echo 'dda
+sad
+daas'

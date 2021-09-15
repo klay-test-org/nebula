@@ -28,7 +28,7 @@ jobs:
     - name: Print result
       run: |
         cat /home/runner/work/_temp/*.sh
-        echo ${{ steps.merge-pr.outputs.merge-info }}
-        echo ${{ steps.merge-pr.outputs.error-log }}
-        echo ${{ steps.merge-pr.outputs.pass-log }}
-        echo ${{ steps.merge-pr.outputs.merged }}
+        echo '${{ steps.merge-pr.outputs.merge-info }}'
+        echo '${{ steps.merge-pr.outputs.error-log }}'
+        echo '${{ steps.merge-pr.outputs.pass-log }}'
+        echo '${{ steps.merge-pr.outputs.merged }}'
