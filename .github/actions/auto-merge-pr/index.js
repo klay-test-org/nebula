@@ -193,11 +193,11 @@ async function getAllPatchesAndApply() {
     for (const [prNum, pr] of Object.entries(mergeablePr)) {
         promises.push(
             octokit.request(`GET ${pr.patch_url}`)
-            .then(async response => {
-                fs.writeFileSync(`${prNum}.patch`, response.data.replace(/\n$/, ""));
+            .then(response => {
+                fs.writeFileSync(`${prNum}.patch`, response.data);
                 mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
             })
-            .then(() => exec.exec(`git apply ${prNum}.patch`, [], execOptions))
+            .then(() => exec.exec(`git apply --reject --whitespace=fix ${prNum}.patch`, [], execOptions))
             .then(returnCode => {
                 if (returnCode != 0) {
                     failedToMerge.push(pr.html_url);
@@ -206,7 +206,7 @@ async function getAllPatchesAndApply() {
             })
         );
     }
-    q.all(promises).then(async () => {
+    q.all(promises).then(() => {
         defer.resolve();
     });
     return defer.promise;
