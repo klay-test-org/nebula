@@ -60,7 +60,6 @@ async function getAllOpenPrs() {
     return octokit.rest.search.issuesAndPullRequests({
         q: `is:pr+is:open+repo:${ownerName}/${repoName}+review:approved`
     }).then(res => {
-        console.log(res);
         return res.data.items;
     });
 }
