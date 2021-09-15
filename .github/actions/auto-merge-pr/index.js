@@ -83,21 +83,22 @@ async function mergeValidPr() {
     let promises = [];
     const defer = q.defer();
     for (const [prNum, pr] of Object.entries(mergeablePr)) {
-        promises.push(
-            octokit.rest.pulls.merge({
-                owner: ownerName,
-                repo: repoName,
-                merge_method: 'squash',
-                pull_number: prNum
-            })
-            .then((response) => {
-                console.log(response.status);
-                if (response.status != '200') {
-                    failedToMerge.push(pr.html_url);
-                    delete mergeablePr[prNum];
-                }
-            })
-        );
+        console.log(prNum);
+        // promises.push(
+        //     octokit.rest.pulls.merge({
+        //         owner: ownerName,
+        //         repo: repoName,
+        //         merge_method: 'squash',
+        //         pull_number: prNum
+        //     })
+        //     .then(response => {
+        //         console.log(response.status);
+        //         if (response.status != '200') {
+        //             failedToMerge.push(pr.html_url);
+        //             delete mergeablePr[prNum];
+        //         }
+        //     })
+        // );
     }
     q.all(promises).then(() => {
         console.log("merged");
