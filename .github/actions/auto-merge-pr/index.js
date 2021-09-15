@@ -84,6 +84,8 @@ async function getMergeablePrs(res) {
     const maintainerList = res[0];
     const prs = res[1];
     console.log(res);
+    console.log(maintainerList);
+    console.log(prs);
     async.each(prs, pr => {
         return octokit.request('GET ' + pr.comments_url)
         .then(comments => {
