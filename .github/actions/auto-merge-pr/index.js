@@ -86,7 +86,7 @@ async function getMergeablePrs(res) {
     async.each(prs, pr => {
         return octokit.request('GET ' + pr.comments_url)
         .then(comments => {
-            const mergeable = false;
+            let mergeable = false;
             comments.data.forEach(comment => { 
                 const body = striptags(comment.body).trim();
                 if (body === "/merge" && maintainerList.includes(comment.user.login)) {
