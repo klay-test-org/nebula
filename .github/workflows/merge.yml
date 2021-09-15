@@ -1,0 +1,25 @@
+name: auto merge
+
+on:
+  schedule:
+    - cron: '/5 * * * *'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  merge:
+    name: auto merge all approved PRs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out branch
+      uses: actions/checkout@v2
+    - name: Run merge script
+    - uses: ./.github/actions/auto-merge-pr
+      with:
+        dingtalk-access-token: ${{ secrets.DINGTALK_ACCESS_TOKEN }}
+        dingtalk-secret: ${{ secrets.DINGTALK_SECRET }}
+        maintainer-team-name: ${{ secrets.MAINTAINER_TEAM_NAME }}
+        gh-token: ${{ secrets.GH_TOKEN }}
+        ci-command: './build.sh'
