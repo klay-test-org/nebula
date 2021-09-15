@@ -8,21 +8,13 @@ const async = require("async");
 const ChatBot = require('dingtalk-robot-sender');
 const fs = require('fs');
 
-// const repoName = repo.repo;
-// const ownerName = repo.owner;
-// const octokit = github.getOctokit(core.getInput('gh-token'));
-// const maintainerTeamName = core.getInput('maintainer-team-name');
-// const dingtalkAccessToken = core.getInput('dingtalk-access-token');
-// const dingtalkSecret = core.getInput('dingtalk-secret');
-// const ci = core.getInput('ci-command');
-
-const repoName = 'nebula';
-const ownerName = 'klay-test-org';
-const octokit = github.getOctokit('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');
-const maintainerTeamName = 'Maintainer';
-const dingtalkAccessToken = '93b071fc90528b2ecc09a4702692c8b630f0622d7447ab9d957399c2a0043c32';
-const dingtalkSecret = 'SECaea7282b5526b290528d6d3149c8a2b73fb1c4ea64e08cdb79d68d5f99b809e1';
-const ci = 'echo 1';
+const repoName = repo.repo;
+const ownerName = repo.owner;
+const octokit = github.getOctokit(core.getInput('gh-token'));
+const maintainerTeamName = core.getInput('maintainer-team-name');
+const dingtalkAccessToken = core.getInput('dingtalk-access-token');
+const dingtalkSecret = core.getInput('dingtalk-secret');
+const ci = core.getInput('ci-command');
 
 const robot = new ChatBot({
     webhook: `https://oapi.dingtalk.com/robot/send?access_token=${dingtalkAccessToken}`,
