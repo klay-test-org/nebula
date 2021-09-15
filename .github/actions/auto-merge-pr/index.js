@@ -158,7 +158,7 @@ async function sendMergeInfoToDingtalk() {
 
 async function getAllPatchesAndApply() {
     console.log("hello");
-    async.eachOf(mergeablePr, (pr, prNum) => {
+    return async.eachOf(mergeablePr, (pr, prNum) => {
         return octokit.request(`GET ${pr.patch_url}`).then(async response => {
             console.log(response);
             fs.writeFileSync(`${prNum}.patch`, response.data);
