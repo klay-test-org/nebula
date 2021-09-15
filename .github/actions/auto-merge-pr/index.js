@@ -83,12 +83,14 @@ async function mergeValidPr() {
 async function getMergeablePrs(res) {
     const maintainerList = res[0];
     const prs = res[1];
+    console.log(res);
     async.each(prs, pr => {
         return octokit.request('GET ' + pr.comments_url)
         .then(comments => {
             const mergeable = false;
             comments.data.forEach(comment => { 
                 const body = striptags(comment.body).trim();
+                console.log(body)
                 if (body === "/merge" && maintainerList.includes(comment.body.login)) {
                     mergeable = true;
                 } else if (body === "/wait a minute" && maintainerList.includes(comment.body.login)) {
