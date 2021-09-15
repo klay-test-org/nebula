@@ -84,7 +84,7 @@ async function mergeValidPr() {
 async function getMergeablePrs(res) {
     const maintainerList = res[0];
     const prs = res[1];
-    async.each(prs, pr => {
+    return async.each(prs, pr => {
         return octokit.request('GET ' + pr.comments_url)
         .then(comments => {
             let mergeable = false;
@@ -97,7 +97,7 @@ async function getMergeablePrs(res) {
                 }
             });
             if (mergeable) {
-                console.log(pr.number);
+                console.log(pr);
                 mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.patch_url};
                 console.log(mergeablePr);
             }
