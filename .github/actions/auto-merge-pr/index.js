@@ -10,6 +10,7 @@ const fs = require('fs');
 
 const repoName = repo.repo;
 const ownerName = repo.owner;
+console.log(core.getInput('gh-token'));
 const octokit = github.getOctokit(core.getInput('gh-token'));
 const maintainerTeamName = core.getInput('maintainer-team-name');
 const dingtalkAccessToken = core.getInput('dingtalk-access-token');
