@@ -78,7 +78,7 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
-    console.log("merging");
+    console.log(mergeablePr);
     console.log("number of merge:" + Object.keys(mergeablePr).length);
     let promises = [];
     const defer = q.defer();
