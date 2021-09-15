@@ -79,6 +79,7 @@ async function getAllOpenPrs() {
 
 async function mergeValidPr() {
     console.log("merging");
+    console.log("number of merge:" + Object.keys(mergeablePr).length);
     let promises = [];
     const defer = q.defer();
     for (const [prNum, pr] of Object.entries(mergeablePr)) {
@@ -88,7 +89,8 @@ async function mergeValidPr() {
                 repo: repoName,
                 merge_method: 'squash',
                 pull_number: prNum
-            }).then((response) => {
+            })
+            .then((response) => {
                 console.log(response.status);
                 if (response.status != '200') {
                     failedToMerge.push(pr.html_url);
@@ -112,21 +114,23 @@ async function getMergeablePrs(res) {
     const defer = q.defer();
     let promises = [];
     prs.forEach((pr) => {
-        promises.push(octokit.request('GET ' + pr.comments_url)
-        .then(comments => {
-            let mergeable = false;
-            comments.data.forEach(comment => { 
-                const body = striptags(comment.body).trim();
-                if (body === "/merge" && maintainerList.includes(comment.user.login)) {
-                    mergeable = true;
-                } else if (body === "/wait a minute" && maintainerList.includes(comment.user.login)) {
-                    mergeable = false;
+        promises.push(
+            octokit.request('GET ' + pr.comments_url)
+            .then(comments => {
+                let mergeable = false;
+                comments.data.forEach(comment => { 
+                    const body = striptags(comment.body).trim();
+                    if (body === "/merge" && maintainerList.includes(comment.user.login)) {
+                        mergeable = true;
+                    } else if (body === "/wait a minute" && maintainerList.includes(comment.user.login)) {
+                        mergeable = false;
+                    }
+                });
+                if (mergeable) {
+                    mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.pull_request.patch_url};
                 }
-            });
-            if (mergeable) {
-                mergeablePr[pr.number] = {number: pr.number, html_url: pr.html_url, patch_url: pr.pull_request.patch_url};
-            }
-        }));
+            })
+        );
     })
     q.all(promises).then(() => {
         defer.resolve();
@@ -190,7 +194,7 @@ async function getAllPatchesAndApply() {
         promises.push(
             octokit.request(`GET ${pr.patch_url}`)
             .then(async response => {
-                fs.writeFileSync(`${prNum}.patch`, response.data);
+                fs.writeFileSync(`${prNum}.patch`, response.data.trim());
                 mergeablePr[prNum]["patchFile"] = `${prNum}.patch`;
             })
             .then(() => exec.exec(`git apply ${prNum}.patch`, [], execOptions))
