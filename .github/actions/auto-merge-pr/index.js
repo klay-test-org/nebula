@@ -31,6 +31,7 @@ function main() {
     q.all([getAllMaintainers(),getAllOpenPrs()])
     .then(getMergeablePrs)
     .then(() => {
+        console.log("31231");
         console.log(mergeablePr);
         if (Object.keys(mergeablePr).length) {
             return getAllPatchesAndApply()
