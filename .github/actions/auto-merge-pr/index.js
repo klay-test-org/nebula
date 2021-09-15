@@ -133,6 +133,10 @@ async function runTest() {
 
     let defer = q.defer();
 
+    const getRandomInt = (max) => {
+        return Math.floor(Math.random() * max);
+    }
+
     const run =  (returnCode) => {
         if (!returnCode || !Object.keys(mergeablePr).length) {
             return defer.resolve();
