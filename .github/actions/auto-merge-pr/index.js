@@ -84,18 +84,18 @@ async function mergeValidPr() {
                 owner: ownerName,
                 repo: repoName,
                 merge_method: 'squash',
-                pull_number: prNum
+                pull_number: pr.number
             })
             .then(response => {
                 if (response.status != '200') {
                     failedToMerge.push(pr.html_url);
-                    delete mergeablePr[prNum];
+                    delete mergeablePr[pr.number];
                 }
             })
             .fail(err => {
                 errorLog += err;
                 failedToMerge.push(pr.html_url);
-                delete mergeablePr[prNum];
+                delete mergeablePr[pr.number];
             })
             .then(() => q().delay(5000))
         })
