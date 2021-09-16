@@ -2,12 +2,17 @@ name: Auto Merge Approved Pull Request
 author: klay-ke
 description: Auto merge approved pull request if maintainer comments /merge.
 inputs:
+  send-to-dingtalk-group:
+    description: Boolean. Set to true if it needs to send merge info to ding talk group. If true then dingtalk-access-token and dingtalk-secret are required.
+    default: false
+    required: false
   dingtalk-access-token:
     description: Dingtalk bot access token.
-    required: true
+    default: ''
+    required: false
   dingtalk-secret:
     description: Dingtalk secret.
-    required: true
+    default: ''
   maintainer-team-name:
     description: Name of maintainer team.
     required: true
