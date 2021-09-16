@@ -175,9 +175,9 @@ async function sendMergeInfoToDingtalk() {
         if (succeedToMerge.length > 0 || failedToMerge.length > 0) {
             let title = "merge info";
             let text = "## merge info\n" +
-            "> merge successfully:\n" +
+            "> ### merge successfully:\n" +
             "> " + succeedToMerge.join(', ') + "\n\n"  +
-            "> failed to merge: \n" +
+            "> ### failed to merge: \n" +
             "> " + failedToMerge.join(', ') + "\n";
             let at = {
                 // "atMobiles": phone, ]

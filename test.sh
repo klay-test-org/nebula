@@ -1,3 +1,0 @@
-echo 'dda
-sad
-daas'
