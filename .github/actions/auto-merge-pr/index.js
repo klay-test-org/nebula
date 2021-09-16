@@ -4,7 +4,6 @@ const exec = require('@actions/exec');
 const core = require('@actions/core');
 const q = require('q');
 const striptags = require('striptags');
-const async = require("async");
 const ChatBot = require('dingtalk-robot-sender');
 const fs = require('fs');
 
