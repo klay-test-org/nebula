@@ -79,7 +79,7 @@ async function getAllOpenPrs() {
 
 async function mergeValidPr() {
     return Object.values(mergeablePr).reduce((promise, pr) => {
-        promise.then(() => {
+        return promise.then(() => {
             return octokit.rest.pulls.merge({
                 owner: ownerName,
                 repo: repoName,
@@ -93,6 +93,7 @@ async function mergeValidPr() {
                 }
             })
             .fail(err => {
+                errorLog += err;
                 failedToMerge.push(pr.html_url);
                 delete mergeablePr[prNum];
             })
