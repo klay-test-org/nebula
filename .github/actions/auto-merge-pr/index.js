@@ -92,7 +92,7 @@ async function mergeValidPr() {
                     delete mergeablePr[pr.number];
                 }
             })
-            .fail(err => {
+            .catch(err => {
                 errorLog += err;
                 failedToMerge.push(pr.html_url);
                 delete mergeablePr[pr.number];
