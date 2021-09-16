@@ -78,11 +78,10 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
-    let promises = [];
-    const defer = q.defer();
-    for (const [prNum, pr] of Object.entries(mergeablePr)) {
-        promises.push(
-            octokit.rest.pulls.merge({
+    let head = q();
+    mergeablePr.values().reduce((promise, pr) => {
+        promise.then(() => {
+            return octokit.rest.pulls.merge({
                 owner: ownerName,
                 repo: repoName,
                 merge_method: 'squash',
@@ -94,17 +93,15 @@ async function mergeValidPr() {
                     delete mergeablePr[prNum];
                 }
             })
-            .catch(err => {
+            .fail(err => {
                 failedToMerge.push(pr.html_url);
                 delete mergeablePr[prNum];
             })
-            
-        );
-    }
-    q.allSettled(promises).then(() => {
-        defer.resolve();
-    })
-    return defer.promise;
+            .then(() => q().delay(5000))
+        })
+    }, head);
+
+    return head;
 }
 
 async function getMergeablePrs(res) {
