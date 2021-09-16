@@ -78,8 +78,7 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
-    let head = q();
-    Object.values(mergeablePr).reduce((promise, pr) => {
+    return Object.values(mergeablePr).reduce((promise, pr) => {
         promise.then(() => {
             return octokit.rest.pulls.merge({
                 owner: ownerName,
@@ -99,9 +98,7 @@ async function mergeValidPr() {
             })
             .then(() => q().delay(5000))
         })
-    }, head);
-
-    return head;
+    }, q());
 }
 
 async function getMergeablePrs(res) {
