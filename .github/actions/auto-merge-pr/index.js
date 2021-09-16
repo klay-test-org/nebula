@@ -78,12 +78,9 @@ async function getAllOpenPrs() {
 }
 
 async function mergeValidPr() {
-    console.log(mergeablePr);
-    console.log("number of merge:" + Object.keys(mergeablePr).length);
     let promises = [];
     const defer = q.defer();
     for (const [prNum, pr] of Object.entries(mergeablePr)) {
-        console.log(prNum);
         promises.push(
             octokit.rest.pulls.merge({
                 owner: ownerName,
@@ -92,27 +89,20 @@ async function mergeValidPr() {
                 pull_number: prNum
             })
             .then(response => {
-                console.log(response.status);
                 if (response.status != '200') {
                     failedToMerge.push(pr.html_url);
                     delete mergeablePr[prNum];
                 }
             })
             .catch(err => {
-                console.log("error!!!!");
-                console.log(err);
+                failedToMerge.push(pr.html_url);
+                delete mergeablePr[prNum];
             })
             
         );
     }
     q.allSettled(promises).then(() => {
-        console.log("merged");
-        console.log(mergeablePr);
-        console.log(failedToMerge);
         defer.resolve();
-    }).catch(err => {
-        console.log("error!!!!");
-        console.log(err);
     })
     return defer.promise;
 }
@@ -156,7 +146,6 @@ async function runTest() {
     }
 
     const run =  (returnCode) => {
-        console.log("returnCode" + returnCode);
         if (!returnCode || !Object.keys(mergeablePr).length) {
             return defer.resolve();
         }
@@ -166,7 +155,7 @@ async function runTest() {
             const pr = mergeablePr[Object.keys(mergeablePr)[kickout]];
             failedToMerge.push(pr.html_url);
             delete mergeablePr[pr.number];
-            return exec.exec(`git apply -R ${pr.number}.patch`, [], execOptions)
+            return exec.exec(`git apply -R ${pr.number}.patch`, [], {ignoreReturnCode: true})
                 .then(() => exec.exec(ci, [], execOptions))
                 .then(run);
         }
